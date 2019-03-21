@@ -1,1 +1,6 @@
-{"presets": ["env"]}
+{
+  "presets": ["@babel/typescript", ["@babel/env", {
+    "modules": false
+  }]],
+  "plugins": ["transform-es2015-modules-commonjs"]
+}

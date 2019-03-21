@@ -1,12 +1,38 @@
-const { OPTIONS, CACHE, INBOUND, STATE, OBJECT_ID, CONFLICTS, CHANGE, ELEM_IDS } = require('./constants')
-const { ROOT_ID, isObject } = require('../src/common')
-const uuid = require('../src/uuid')
-const { applyDiffs, updateParentObjects, cloneRootObject } = require('./apply_patch')
-const { rootObjectProxy } = require('./proxies')
-const { Context } = require('./context')
-const { Text } = require('./text')
-const { Table } = require('./table')
-const { Counter } = require('./counter')
+const {
+  OPTIONS,
+  CACHE,
+  INBOUND,
+  STATE,
+  OBJECT_ID,
+  CONFLICTS,
+  CHANGE,
+  ELEM_IDS
+} = require('./constants')
+const {
+  ROOT_ID,
+  isObject
+} = require('../src/common')
+import uuid from '../src/uuid';
+const {
+  applyDiffs,
+  updateParentObjects,
+  cloneRootObject
+} = require('./apply_patch')
+const {
+  rootObjectProxy
+} = require('./proxies')
+const {
+  Context
+} = require('./context')
+const {
+  Text
+} = require('./text')
+const {
+  Table
+} = require('./table')
+const {
+  Counter
+} = require('./counter')
 
 /**
  * Takes a set of objects that have been updated (in `updated`) and an updated
@@ -20,10 +46,18 @@ function updateRootObject(doc, updated, inbound, state) {
     newDoc = cloneRootObject(doc[CACHE][ROOT_ID])
     updated[ROOT_ID] = newDoc
   }
-  Object.defineProperty(newDoc, OPTIONS,  {value: doc[OPTIONS]})
-  Object.defineProperty(newDoc, CACHE,    {value: updated})
-  Object.defineProperty(newDoc, INBOUND,  {value: inbound})
-  Object.defineProperty(newDoc, STATE,    {value: state})
+  Object.defineProperty(newDoc, OPTIONS, {
+    value: doc[OPTIONS]
+  })
+  Object.defineProperty(newDoc, CACHE, {
+    value: updated
+  })
+  Object.defineProperty(newDoc, INBOUND, {
+    value: inbound
+  })
+  Object.defineProperty(newDoc, STATE, {
+    value: state
+  })
 
   for (let objectId of Object.keys(updated)) {
     if (updated[objectId] instanceof Table) {
@@ -51,13 +85,21 @@ function updateRootObject(doc, updated, inbound, state) {
  * the filtered list of operations.
  */
 function ensureSingleAssignment(ops) {
-  let assignments = {}, result = []
+  let assignments = {},
+    result = []
 
   for (let i = ops.length - 1; i >= 0; i--) {
-    const op = ops[i], { obj, key, action } = op
+    const op = ops[i],
+      {
+        obj,
+        key,
+        action
+      } = op
     if (['set', 'del', 'link', 'inc'].includes(action)) {
       if (!assignments[obj]) {
-        assignments[obj] = {[key]: op}
+        assignments[obj] = {
+          [key]: op
+        }
         result.push(op)
       } else if (!assignments[obj][key]) {
         assignments[obj][key] = op
@@ -90,7 +132,12 @@ function makeChange(doc, requestType, context, message) {
   const deps = Object.assign({}, state.deps)
   delete deps[actor]
 
-  const request = {requestType, actor, seq: state.seq, deps}
+  const request = {
+    requestType,
+    actor,
+    seq: state.seq,
+    deps
+  }
   if (message !== undefined) {
     request.message = message
   }
@@ -179,24 +226,23 @@ function transformRequest(request, patch) {
   let transformed = []
 
   local_loop:
-  for (let local of request.diffs) {
-    local = Object.assign({}, local)
+    for (let local of request.diffs) {
+      local = Object.assign({}, local)
 
-    for (let remote of patch.diffs) {
-      // If the incoming patch modifies list indexes (because it inserts or removes),
-      // adjust the indexes in local diffs accordingly
-      if (local.obj === remote.obj && local.type === 'list' &&
-          ['insert', 'set', 'remove'].includes(local.action)) {
-        if (remote.action === 'insert' && remote.index <=  local.index) local.index += 1
-        if (remote.action === 'remove' && remote.index <   local.index) local.index -= 1
-        if (remote.action === 'remove' && remote.index === local.index) {
-          if (local.action === 'set') local.action = 'insert'
-          if (local.action === 'remove') continue local_loop // drop this diff
+      for (let remote of patch.diffs) {
+        // If the incoming patch modifies list indexes (because it inserts or removes),
+        // adjust the indexes in local diffs accordingly
+        if (local.obj === remote.obj && local.type === 'list' && ['insert', 'set', 'remove'].includes(local.action)) {
+          if (remote.action === 'insert' && remote.index <= local.index) local.index += 1
+          if (remote.action === 'remove' && remote.index < local.index) local.index -= 1
+          if (remote.action === 'remove' && remote.index === local.index) {
+            if (local.action === 'set') local.action = 'insert'
+            if (local.action === 'remove') continue local_loop // drop this diff
+          }
         }
       }
+      transformed.push(local)
     }
-    transformed.push(local)
-  }
 
   request.diffs = transformed
 }
@@ -206,7 +252,9 @@ function transformRequest(request, patch) {
  */
 function init(options) {
   if (typeof options === 'string') {
-    options = {actorId: options}
+    options = {
+      actorId: options
+    }
   } else if (typeof options === 'undefined') {
     options = {}
   } else if (!isObject(options)) {
@@ -216,17 +264,38 @@ function init(options) {
     options.actorId = uuid()
   }
 
-  const root = {}, cache = {[ROOT_ID]: root}
-  const state = {seq: 0, requests: [], deps: {}, canUndo: false, canRedo: false}
+  const root = {},
+    cache = {
+      [ROOT_ID]: root
+    }
+  const state = {
+    seq: 0,
+    requests: [],
+    deps: {},
+    canUndo: false,
+    canRedo: false
+  }
   if (options.backend) {
     state.backendState = options.backend.init()
   }
-  Object.defineProperty(root, OBJECT_ID, {value: ROOT_ID})
-  Object.defineProperty(root, OPTIONS,   {value: Object.freeze(options)})
-  Object.defineProperty(root, CONFLICTS, {value: Object.freeze({})})
-  Object.defineProperty(root, CACHE,     {value: Object.freeze(cache)})
-  Object.defineProperty(root, INBOUND,   {value: Object.freeze({})})
-  Object.defineProperty(root, STATE,     {value: Object.freeze(state)})
+  Object.defineProperty(root, OBJECT_ID, {
+    value: ROOT_ID
+  })
+  Object.defineProperty(root, OPTIONS, {
+    value: Object.freeze(options)
+  })
+  Object.defineProperty(root, CONFLICTS, {
+    value: Object.freeze({})
+  })
+  Object.defineProperty(root, CACHE, {
+    value: Object.freeze(cache)
+  })
+  Object.defineProperty(root, INBOUND, {
+    value: Object.freeze({})
+  })
+  Object.defineProperty(root, STATE, {
+    value: Object.freeze(state)
+  })
   return Object.freeze(root)
 }
 
@@ -247,7 +316,8 @@ function change(doc, message, callback) {
     throw new TypeError('Calls to Automerge.change cannot be nested')
   }
   if (typeof message === 'function' && callback === undefined) {
-    ;[message, callback] = [callback, message]
+    ;
+    [message, callback] = [callback, message]
   }
   if (message !== undefined && typeof message !== 'string') {
     throw new TypeError('Change message must be a string')
@@ -430,7 +500,9 @@ function getActorId(doc) {
  * document object with updated metadata.
  */
 function setActorId(doc, actorId) {
-  const state = Object.assign({}, doc[STATE], {actorId})
+  const state = Object.assign({}, doc[STATE], {
+    actorId
+  })
   return updateRootObject(doc, {}, doc[INBOUND], state)
 }
 
@@ -456,9 +528,22 @@ function getElementIds(list) {
 }
 
 module.exports = {
-  init, change, emptyChange, applyPatch,
-  canUndo, undo, canRedo, redo,
-  getObjectId, getObjectById, getActorId, setActorId, getConflicts,
-  getBackendState, getElementIds,
-  Text, Table, Counter
+  init,
+  change,
+  emptyChange,
+  applyPatch,
+  canUndo,
+  undo,
+  canRedo,
+  redo,
+  getObjectId,
+  getObjectById,
+  getActorId,
+  setActorId,
+  getConflicts,
+  getBackendState,
+  getElementIds,
+  Text,
+  Table,
+  Counter
 }
