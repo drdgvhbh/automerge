@@ -4,9 +4,10 @@
  * the value trivially converges.
  */
 class Counter {
+  public value;
   constructor(value) {
-    this.value = value || 0
-    Object.freeze(this)
+    this.value = value || 0;
+    Object.freeze(this);
   }
 
   /**
@@ -18,7 +19,7 @@ class Counter {
    * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/valueOf
    */
   valueOf() {
-    return this.value
+    return this.value;
   }
 
   /**
@@ -27,7 +28,7 @@ class Counter {
    * you use string interpolation: `value: ${x}`.
    */
   toString() {
-    return this.valueOf().toString()
+    return this.valueOf().toString();
   }
 }
 
@@ -36,15 +37,20 @@ class Counter {
  * callback.
  */
 class WriteableCounter extends Counter {
+  public context;
+
+  public objectId;
+
+  public key;
   /**
    * Increases the value of the counter by `delta`. If `delta` is not given,
    * increases the value of the counter by 1.
    */
   increment(delta) {
-    delta = typeof delta === 'number' ? delta : 1
-    this.context.increment(this.objectId, this.key, delta)
-    this.value += delta
-    return this.value
+    delta = typeof delta === 'number' ? delta : 1;
+    this.context.increment(this.objectId, this.key, delta);
+    this.value += delta;
+    return this.value;
   }
 
   /**
@@ -52,7 +58,7 @@ class WriteableCounter extends Counter {
    * decreases the value of the counter by 1.
    */
   decrement(delta) {
-    return this.increment(typeof delta === 'number' ? -delta : -1)
+    return this.increment(typeof delta === 'number' ? -delta : -1);
   }
 }
 
@@ -62,14 +68,14 @@ class WriteableCounter extends Counter {
  * `objectId` is the ID of the object containing the counter, and `key` is
  * the property name (key in map, or index in list) where the counter is
  * located.
-*/
+ */
 function getWriteableCounter(value, context, objectId, key) {
-  const instance = Object.create(WriteableCounter.prototype)
-  instance.value = value
-  instance.context = context
-  instance.objectId = objectId
-  instance.key = key
-  return instance
+  const instance = Object.create(WriteableCounter.prototype);
+  instance.value = value;
+  instance.context = context;
+  instance.objectId = objectId;
+  instance.key = key;
+  return instance;
 }
 
-module.exports = { Counter, getWriteableCounter }
+export { Counter, getWriteableCounter };

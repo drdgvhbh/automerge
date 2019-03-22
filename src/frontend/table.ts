@@ -273,7 +273,7 @@ class WriteableTable extends Table {
  * This function is used to instantiate a Table object in the context of
  * applying a patch (see apply_patch.js).
  */
-function instantiateTable(objectId, entries) {
+function instantiateTable(objectId, entries?) {
   const instance = Object.create(Table.prototype);
   instance[OBJECT_ID] = objectId;
   instance[CONFLICTS] = Object.freeze({});

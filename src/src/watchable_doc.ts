@@ -1,5 +1,5 @@
 import { Set } from 'immutable';
-import Backend from '../backend';
+import * as Backend from '../backend';
 import * as Frontend from '../frontend';
 
 class WatchableDoc {

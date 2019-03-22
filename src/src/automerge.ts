@@ -1,5 +1,5 @@
 import transit from 'transit-immutable-js';
-import Backend from '../backend';
+import * as Backend from '../backend';
 import * as Frontend from '../frontend';
 import {
   canRedo,
@@ -29,7 +29,7 @@ function docFromChanges(actorId, changes) {
   const doc = Frontend.init({ actorId, backend: Backend });
   const [state] = Backend.applyChanges(Backend.init(), changes);
   const patch = Backend.getPatch(state);
-  patch.state = state;
+  (patch as any).state = state;
   return Frontend.applyPatch(doc, patch);
 }
 

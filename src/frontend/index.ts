@@ -11,8 +11,7 @@ import {
 } from './constants';
 const { ROOT_ID, isObject } = Common;
 import uuid from '../src/uuid';
-import ApplyPatch = require('./apply_patch');
-const { applyDiffs, updateParentObjects, cloneRootObject } = ApplyPatch;
+import { applyDiffs, cloneRootObject, updateParentObjects } from './apply_patch';
 import * as Proxies from './proxies';
 const { rootObjectProxy } = Proxies;
 import { Context } from './context';
