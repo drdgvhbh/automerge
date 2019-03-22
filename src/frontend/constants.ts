@@ -13,7 +13,7 @@ const CHANGE = Symbol('_change'); // the context object on proxy objects used in
 const ELEM_IDS = Symbol('_elemIds'); // list containing the element ID of each list element
 const MAX_ELEM = Symbol('_maxElem'); // maximum element counter value in this list (number)
 
-module.exports = {
+export {
   OPTIONS,
   CACHE,
   INBOUND,

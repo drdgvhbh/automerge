@@ -1,21 +1,29 @@
-const { OBJECT_ID, CONFLICTS } = require('./constants')
-const { isObject } = require('../src/common')
+import { isObject } from '../src/common';
+import { CONFLICTS, OBJECT_ID } from './constants';
 
 function compareRows(properties, row1, row2) {
-  for (let prop of properties) {
-    if (row1[prop] === row2[prop]) continue
+  for (const prop of properties) {
+    if (row1[prop] === row2[prop]) {
+      continue;
+    }
 
     if (typeof row1[prop] === 'number' && typeof row2[prop] === 'number') {
-      return row1[prop] - row2[prop]
+      return row1[prop] - row2[prop];
     } else {
-      const prop1 = '' + row1[prop], prop2 = '' + row2[prop]
-      if (prop1 === prop2) continue
-      if (prop1 < prop2) return -1; else return +1
+      const prop1 = '' + row1[prop],
+        prop2 = '' + row2[prop];
+      if (prop1 === prop2) {
+        continue;
+      }
+      if (prop1 < prop2) {
+        return -1;
+      } else {
+        return +1;
+      }
     }
   }
-  return 0
+  return 0;
 }
-
 
 /**
  * A relational-style collection of records. A table has an ordered list of
@@ -24,24 +32,29 @@ function compareRows(properties, row1, row2) {
  * object ID to row object.
  */
 class Table {
+  public columns;
+
+  public entries;
   /**
    * This constructor is used by application code when creating a new Table
    * object within a change callback.
    */
   constructor(columns) {
     if (!Array.isArray(columns)) {
-      throw new TypeError('When creating a table you must supply a list of columns')
+      throw new TypeError(
+        'When creating a table you must supply a list of columns',
+      );
     }
-    this.columns = columns
-    this.entries = Object.freeze({})
-    Object.freeze(this)
+    this.columns = columns;
+    this.entries = Object.freeze({});
+    Object.freeze(this);
   }
 
   /**
    * Looks up a row in the table by its unique ID.
    */
   byId(id) {
-    return this.entries[id]
+    return this.entries[id];
   }
 
   /**
@@ -49,17 +62,17 @@ class Table {
    * particular order.
    */
   get ids() {
-    return Object.keys(this.entries).filter(key => {
-      const entry = this.entries[key]
-      return isObject(entry) && entry[OBJECT_ID] === key
-    })
+    return Object.keys(this.entries).filter((key) => {
+      const entry = this.entries[key];
+      return isObject(entry) && entry[OBJECT_ID] === key;
+    });
   }
 
   /**
    * Returns the number of rows in the table.
    */
   get count() {
-    return this.ids.length
+    return this.ids.length;
   }
 
   /**
@@ -67,7 +80,7 @@ class Table {
    * order.
    */
   get rows() {
-    return this.ids.map(id => this.byId(id))
+    return this.ids.map((id) => this.byId(id));
   }
 
   /**
@@ -75,7 +88,7 @@ class Table {
    * callback function and returns all rows for which the it returns true.
    */
   filter(callback, thisArg) {
-    return this.rows.filter(callback, thisArg)
+    return this.rows.filter(callback, thisArg);
   }
 
   /**
@@ -83,7 +96,7 @@ class Table {
    * callback function and returns the first row for which it returns true.
    */
   find(callback, thisArg) {
-    return this.rows.find(callback, thisArg)
+    return this.rows.find(callback, thisArg);
   }
 
   /**
@@ -91,30 +104,32 @@ class Table {
    * callback function and returns a list of its return values.
    */
   map(callback, thisArg) {
-    return this.rows.map(callback, thisArg)
+    return this.rows.map(callback, thisArg);
   }
 
   /**
-  * Returns the list of rows, sorted by one of the following:
-  * - If a function argument is given, it compares rows as per
-  *   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Description
-  * - If a string argument is given, it is interpreted as a column name and
-  *   rows are sorted according to that column.
-  * - If an array of strings is given, it is interpreted as a list of column
-  *   names, and rows are sorted lexicographically by those columns.
-  * - If no argument is given, it sorts by row ID by default.
-  */
+   * Returns the list of rows, sorted by one of the following:
+   * - If a function argument is given, it compares rows as per
+   *   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Description
+   * - If a string argument is given, it is interpreted as a column name and
+   *   rows are sorted according to that column.
+   * - If an array of strings is given, it is interpreted as a list of column
+   *   names, and rows are sorted lexicographically by those columns.
+   * - If no argument is given, it sorts by row ID by default.
+   */
   sort(arg) {
     if (typeof arg === 'function') {
-      return this.rows.sort(arg)
+      return this.rows.sort(arg);
     } else if (typeof arg === 'string') {
-      return this.rows.sort((row1, row2) => compareRows([arg], row1, row2))
+      return this.rows.sort((row1, row2) => compareRows([arg], row1, row2));
     } else if (Array.isArray(arg)) {
-      return this.rows.sort((row1, row2) => compareRows(arg, row1, row2))
+      return this.rows.sort((row1, row2) => compareRows(arg, row1, row2));
     } else if (arg === undefined) {
-      return this.rows.sort((row1, row2) => compareRows([OBJECT_ID], row1, row2))
+      return this.rows.sort((row1, row2) =>
+        compareRows([OBJECT_ID], row1, row2),
+      );
     } else {
-      throw new TypeError(`Unsupported sorting argument: ${arg}`)
+      throw new TypeError(`Unsupported sorting argument: ${arg}`);
     }
   }
 
@@ -122,18 +137,19 @@ class Table {
    * When iterating over a table, you get all rows in the table, in no
    * particular order.
    */
-  [Symbol.iterator] () {
-    let rows = this.rows, index = -1
+  [Symbol.iterator]() {
+    let rows = this.rows,
+      index = -1;
     return {
-      next () {
-        index += 1
+      next() {
+        index += 1;
         if (index < rows.length) {
-          return {done: false, value: rows[index]}
+          return { done: false, value: rows[index] };
         } else {
-          return {done: true}
+          return { done: true };
         }
-      }
-    }
+      },
+    };
   }
 
   /**
@@ -143,9 +159,9 @@ class Table {
    */
   _clone() {
     if (!this[OBJECT_ID]) {
-      throw new RangeError('clone() requires the objectId to be set')
+      throw new RangeError('clone() requires the objectId to be set');
     }
-    return instantiateTable(this[OBJECT_ID], Object.assign({}, this.entries))
+    return instantiateTable(this[OBJECT_ID], Object.assign({}, this.entries));
   }
 
   /**
@@ -153,10 +169,12 @@ class Table {
    */
   set(id, value) {
     if (Object.isFrozen(this.entries)) {
-      throw new Error('A table can only be modified in a change function')
+      throw new Error('A table can only be modified in a change function');
     }
-    this.entries[id] = value
-    if (id === 'columns') this.columns = value
+    this.entries[id] = value;
+    if (id === 'columns') {
+      this.columns = value;
+    }
   }
 
   /**
@@ -164,17 +182,17 @@ class Table {
    */
   remove(id) {
     if (Object.isFrozen(this.entries)) {
-      throw new Error('A table can only be modified in a change function')
+      throw new Error('A table can only be modified in a change function');
     }
-    delete this.entries[id]
+    delete this.entries[id];
   }
 
   /**
    * Makes this object immutable. This is called after a change has been made.
    */
   _freeze() {
-    Object.freeze(this.entries)
-    Object.freeze(this)
+    Object.freeze(this.entries);
+    Object.freeze(this);
   }
 
   /**
@@ -184,14 +202,14 @@ class Table {
    */
   getWriteable(context) {
     if (!this[OBJECT_ID]) {
-      throw new RangeError('getWriteable() requires the objectId to be set')
+      throw new RangeError('getWriteable() requires the objectId to be set');
     }
 
-    const instance = Object.create(WriteableTable.prototype)
-    instance[OBJECT_ID] = this[OBJECT_ID]
-    instance.context = context
-    instance.entries = this.entries
-    return instance
+    const instance = Object.create(WriteableTable.prototype);
+    instance[OBJECT_ID] = this[OBJECT_ID];
+    instance.context = context;
+    instance.entries = this.entries;
+    return instance;
   }
 }
 
@@ -200,13 +218,14 @@ class Table {
  * callback.
  */
 class WriteableTable extends Table {
+  public context;
   /**
    * Returns a proxied version of the columns list. This list can be modified
    * within a change callback.
    */
   get columns() {
-    const columnsId = this.entries.columns[OBJECT_ID]
-    return this.context.instantiateObject(columnsId)
+    const columnsId = this.entries.columns[OBJECT_ID];
+    return this.context.instantiateObject(columnsId);
   }
 
   /**
@@ -215,7 +234,7 @@ class WriteableTable extends Table {
    */
   byId(id) {
     if (isObject(this.entries[id]) && this.entries[id][OBJECT_ID] === id) {
-      return this.context.instantiateObject(id)
+      return this.context.instantiateObject(id);
     }
   }
 
@@ -227,13 +246,14 @@ class WriteableTable extends Table {
    */
   add(row) {
     if (Array.isArray(row)) {
-      const columns = this.columns, rowObj = {}
+      const columns = this.columns,
+        rowObj = {};
       for (let i = 0; i < columns.length; i++) {
-        rowObj[columns[i]] = row[i]
+        rowObj[columns[i]] = row[i];
       }
-      row = rowObj
+      row = rowObj;
     }
-    return this.context.addTableRow(this[OBJECT_ID], row)
+    return this.context.addTableRow(this[OBJECT_ID], row);
   }
 
   /**
@@ -242,9 +262,9 @@ class WriteableTable extends Table {
    */
   remove(id) {
     if (isObject(this.entries[id]) && this.entries[id][OBJECT_ID] === id) {
-      this.context.deleteTableRow(this[OBJECT_ID], id)
+      this.context.deleteTableRow(this[OBJECT_ID], id);
     } else {
-      throw new RangeError(`There is no row with ID ${id} in this table`)
+      throw new RangeError(`There is no row with ID ${id} in this table`);
     }
   }
 }
@@ -254,11 +274,11 @@ class WriteableTable extends Table {
  * applying a patch (see apply_patch.js).
  */
 function instantiateTable(objectId, entries) {
-  const instance = Object.create(Table.prototype)
-  instance[OBJECT_ID] = objectId
-  instance[CONFLICTS] = Object.freeze({})
-  instance.entries = entries || {}
-  return instance
+  const instance = Object.create(Table.prototype);
+  instance[OBJECT_ID] = objectId;
+  instance[CONFLICTS] = Object.freeze({});
+  instance.entries = entries || {};
+  return instance;
 }
 
-module.exports = { Table, instantiateTable }
+export { Table, instantiateTable };

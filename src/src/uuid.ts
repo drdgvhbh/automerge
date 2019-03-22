@@ -9,4 +9,4 @@ function makeUuid() {
 makeUuid.setFactory = (newFactory: typeof uuid) => (factory = newFactory);
 makeUuid.reset = () => (factory = uuid);
 
-module.exports = makeUuid;
+export = makeUuid;

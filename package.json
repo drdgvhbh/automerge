@@ -1,5 +1,5 @@
 {
-  "name": "automerge",
+  "name": "automerge-ts",
   "version": "0.10.0",
   "description": "Data structures for building collaborative applications",
   "main": "dist/automerge.js",
@@ -7,6 +7,9 @@
     "browsertest": "karma start karma.conf.js",
     "test": "mochapack",
     "build": "webpack",
+    "tsc": "tsc",
+    "types": "tsc -d --emitDeclarationOnly --allowJs false --noImplicitAny false --declarationDir ./dist",
+    "prepublish": "npm run types",
     "prepublishOnly": "webpack"
   },
   "author": "",

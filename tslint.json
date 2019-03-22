@@ -12,6 +12,9 @@
     "jsx-boolean-value": false,
     "linebreak-style": [false, "LF"],
     "jsx-no-lambda": false,
+    "no-any": {
+      "severity": "warning"
+    },
     "no-unused-expression": true,
     "max-classes-per-file": false,
     "jsx-no-multiline-js": false,

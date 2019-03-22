@@ -29,12 +29,11 @@ class DocSet {
   }
 
   public applyChanges(docId: string, changes: any): Doc {
-    let doc =
-      this.docs.get(docId) || (Frontend as any).init({ backend: Backend });
-    const oldState = (Frontend as any).getBackendState(doc);
+    let doc = this.docs.get(docId) || Frontend.init({ backend: Backend });
+    const oldState = Frontend.getBackendState(doc);
     const [newState, patch] = Backend.applyChanges(oldState, changes);
     patch.state = newState;
-    doc = (Frontend as any).applyPatch(doc, patch);
+    doc = Frontend.applyPatch(doc, patch);
     this.setDoc(docId, doc);
     return doc;
   }
@@ -48,4 +47,4 @@ class DocSet {
   }
 }
 
-module.exports = DocSet;
+export = DocSet;

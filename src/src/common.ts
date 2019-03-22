@@ -1,7 +1,7 @@
-const ROOT_ID   = '00000000-0000-0000-0000-000000000000'
+const ROOT_ID = '00000000-0000-0000-0000-000000000000';
 
 function isObject(obj) {
-  return typeof obj === 'object' && obj !== null
+  return typeof obj === 'object' && obj !== null;
 }
 
 /**
@@ -12,9 +12,13 @@ function isObject(obj) {
  * clocks are incomparable).
  */
 function lessOrEqual(clock1, clock2) {
-  return clock1.keySeq().concat(clock2.keySeq()).reduce(
-    (result, key) => (result && clock1.get(key, 0) <= clock2.get(key, 0)),
-    true)
+  return clock1
+    .keySeq()
+    .concat(clock2.keySeq())
+    .reduce(
+      (result, key) => result && clock1.get(key, 0) <= clock2.get(key, 0),
+      true,
+    );
 }
 
 /**
@@ -23,13 +27,11 @@ function lessOrEqual(clock1, clock2) {
  * of the structure `{counter, actorId}`.
  */
 function parseElemId(elemId) {
-  const match = /^(.*):(\d+)$/.exec(elemId || '')
+  const match = /^(.*):(\d+)$/.exec(elemId || '');
   if (!match) {
-    throw new RangeError(`Not a valid elemId: ${elemId}`)
+    throw new RangeError(`Not a valid elemId: ${elemId}`);
   }
-  return {counter: parseInt(match[2]), actorId: match[1]}
+  return { counter: parseInt(match[2]), actorId: match[1] };
 }
 
-module.exports = {
-  ROOT_ID, isObject, lessOrEqual, parseElemId
-}
+export { ROOT_ID, isObject, lessOrEqual, parseElemId };

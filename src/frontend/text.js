@@ -1,31 +1,41 @@
-const { OBJECT_ID, ELEM_IDS, MAX_ELEM } = require('./constants')
+const {
+  OBJECT_ID,
+  ELEM_IDS,
+  MAX_ELEM
+} = require('./constants')
 
 class Text {
-  constructor (objectId, elems, maxElem) {
+  constructor(objectId, elems, maxElem) {
     return makeInstance(objectId, elems, maxElem)
   }
 
-  get length () {
+  get length() {
     return this.elems.length
   }
 
-  get (index) {
+  get(index) {
     return this.elems[index].value
   }
 
-  getElemId (index) {
+  getElemId(index) {
     return this.elems[index].elemId
   }
 
-  [Symbol.iterator] () {
-    let elems = this.elems, index = -1
+  [Symbol.iterator]() {
+    let elems = this.elems,
+      index = -1
     return {
-      next () {
+      next() {
         index += 1
         if (index < elems.length) {
-          return {done: false, value: elems[index].value}
+          return {
+            done: false,
+            value: elems[index].value
+          }
         } else {
-          return {done: true}
+          return {
+            done: true
+          }
         }
       }
     }
@@ -34,8 +44,9 @@ class Text {
 
 // Read-only methods that can delegate to the JavaScript built-in array
 for (let method of ['concat', 'every', 'filter', 'find', 'findIndex', 'forEach', 'includes',
-                    'indexOf', 'join', 'lastIndexOf', 'map', 'reduce', 'reduceRight',
-                    'slice', 'some', 'toLocaleString', 'toString']) {
+    'indexOf', 'join', 'lastIndexOf', 'map', 'reduce', 'reduceRight',
+    'slice', 'some', 'toLocaleString', 'toString'
+  ]) {
   Text.prototype[method] = function (...args) {
     const array = [...this]
     return array[method].call(array, ...args)
@@ -58,4 +69,7 @@ function getElemId(object, index) {
   return (object instanceof Text) ? object.getElemId(index) : object[ELEM_IDS][index]
 }
 
-module.exports = { Text, getElemId }
+module.exports = {
+  Text,
+  getElemId
+}
