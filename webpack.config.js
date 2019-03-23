@@ -1,7 +1,7 @@
 var path = require('path');
 
 module.exports = {
-  entry: './src/src/automerge.js',
+  entry: './src/src/automerge.ts',
   mode: 'development',
   output: {
     filename: 'automerge.js',
